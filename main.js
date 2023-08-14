@@ -1,4 +1,7 @@
 const array = []
+const oneData = []
+const menu = document.querySelectorAll(".menu > li")
+console.log(menu );
 const staff = [
   {
     id: 1,
@@ -434,8 +437,8 @@ class ConfirmationPage {
     phone: "",
   };
   
-  
   get HTML() {
+    console.log(array);
     return `
       <div class="page-name">Confirmation Page</div>
       <form id="confirmation-form">
@@ -462,11 +465,12 @@ class ConfirmationPage {
       </form>
   
       <div class="selected-info">
-          <div>Staff : ${array[0].name}</div>
-          <div> Service : ${array[1].name}</div>
-          <div>Date : 2022-03-04 / 09:30-10:00</div>
-          <div>Price :${array[1].price}</div>
-      </div> 
+      <div class="info-item">Staff : ${oneData[0].name}</div>
+      <div class="info-item">Service : ${oneData[1].name}</div>
+      <div class="info-item">Date : ${array[0].TimePicker} / 09:30-10:00</div>
+      <div class="info-item">Price : ${oneData[1].price}</div>
+    </div>
+    
     `;
   }
 
@@ -525,7 +529,9 @@ class Pagination {
     new ConfirmationPage(),
   ];
   currentPageIndex = 0;
-  selectedData = {};
+  selectedData = {
+
+  };
   constructor() {
     this.footer.backBtn.addEventListener("click", this.onBack.bind(this));
     this.footer.nextBtn.addEventListener("click", this.onNext.bind(this));
@@ -533,8 +539,17 @@ class Pagination {
   }
   onPageChange(index) {
     this.currentPageIndex = index;
-    console.log("currentPageIndex" , this.currentPageIndex);
+    console.log("currentPageIndex", this.currentPageIndex);
   
+    menu.forEach((menuItem, menuItemIndex) => {
+      if (menuItemIndex === this.currentPageIndex) {
+        menuItem.classList.add("menuNew");
+        menuItem.setAttribute("data-page-number", this.currentPageIndex + 1);
+      } else {
+        menuItem.classList.remove("menuNew");
+        menuItem.removeAttribute("data-page-number");
+      }
+    });
   
     if (this.currentPageIndex === 0) {
       this.footer.backBtn.classList.add("hidden");
@@ -542,6 +557,7 @@ class Pagination {
       this.footer.backBtn.classList.remove("hidden");
     }
   }
+  
   onBack() {
     this.goTo(this.currentPageIndex - 1);
   }
@@ -556,22 +572,23 @@ class Pagination {
       if (this.currentPageIndex === 2) {
         this.selectedData.staff = this.pages[0].state.stuffId;
         this.selectedData.service = this.pages[1].state.serviceId;
-        this.selectedData.date = this.pages[2].datePicker.state.day;
-        // this.selectedData.timeIndex = this.pages[2].timePicker.state.timeIndex;
-
+        this.selectedData.date = this.pages[2].datePicker.state;
+        this.selectedData.TimePicker = this.pages[2].datePicker.timePicker.state.date
+        array.push(this.selectedData)
+        console.log(this.pages[2].datePicker.timePicker.state.date);
         const findedStaff = staff.find(item => item.id == this.selectedData.staff)
         const findedService = services.find(item => item.id == this.selectedData.service )
-        array.push(findedStaff, findedService)
-        console.log(this.selectedData);
-        console.log(array);
+        oneData.push(findedStaff,findedService)
+        console.log(oneData);
+        
       }
-
+      
+      
       this.goTo(newIndex);
     }
-  
-}
+    
+  }
   renderInnerPage(HTML) {
-    // console.log("html", HTML);
     document.querySelector(`#inner-page`).innerHTML = HTML;
   }
   goTo(index){
@@ -580,6 +597,8 @@ class Pagination {
       this.pages[index].afterRender();
       this.onPageChange(index);
     }else {
+      const mergedObject = { ...array[0], ...array[1] };
+      console.log(mergedObject);
       alert("Succes")
     }
   }
