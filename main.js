@@ -1,7 +1,6 @@
 const array = []
 const oneData = []
 const menu = document.querySelectorAll(".menu > li")
-console.log(menu );
 const staff = [
   {
     id: 1,
@@ -228,7 +227,7 @@ class DatePicker {
   get HTML() {
     const weeks = this.days;
     return `
-    <div class="flex flex-row items-center">
+    <div class="flex flex-row items-center top">
     <button data-back-month><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
     <path d="M14 7L9 12L14 17" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   </svg></button> <p>${this.monthName} ${this.state.year
@@ -236,7 +235,8 @@ class DatePicker {
       <path d="M10 17L15 12L10 7" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
       </svg></button>
     </div>
-        <table>
+    <div class="table">
+            <table>
     <tr>
     <th>Sun</th>
     <th>Mon</th>
@@ -279,6 +279,9 @@ class DatePicker {
     
     
   </table>
+    
+    </div>
+
         `;
   }
   get backEl() {
@@ -349,8 +352,8 @@ class TimePicker {
   get HTML() {
     if (!this.state.date) return "";
     return `
-      <div class="flex flex-column">
-        <div>${this.formatedDate}</div>
+      <div class="time flex flex-column">
+        <div class="header-time">${this.formatedDate}</div>
         <div class="flex flex-row">
         ${times
         .map((time, index) => {
@@ -400,6 +403,7 @@ class DatePage {
         <div data-date-picker></div>
       </div>
       <div class="time-picker-container">
+      <div class="page-name">Time</div>
         <div data-time-picker></div>
       </div>
     </div>
@@ -438,7 +442,6 @@ class ConfirmationPage {
   };
   
   get HTML() {
-    console.log(array);
     return `
       <div class="page-name">Confirmation Page</div>
       <form id="confirmation-form">
@@ -561,33 +564,33 @@ class Pagination {
   onBack() {
     this.goTo(this.currentPageIndex - 1);
   }
-  onNext() {
-    const newIndex = this.currentPageIndex < 3 ? this.currentPageIndex + 1 : undefined;
-    const hint = this.pages[this.currentPageIndex].onSubmit();
-    
-    if (hint) {
-      this.footer.changeHint(hint);
-    } else {
-      this.footer.changeHint(null);
-      if (this.currentPageIndex === 2) {
-        this.selectedData.staff = this.pages[0].state.stuffId;
-        this.selectedData.service = this.pages[1].state.serviceId;
-        this.selectedData.date = this.pages[2].datePicker.state;
-        this.selectedData.TimePicker = this.pages[2].datePicker.timePicker.state.date
-        array.push(this.selectedData)
-        console.log(this.pages[2].datePicker.timePicker.state.date);
-        const findedStaff = staff.find(item => item.id == this.selectedData.staff)
-        const findedService = services.find(item => item.id == this.selectedData.service )
-        oneData.push(findedStaff,findedService)
-        console.log(oneData);
-        
-      }
+onNext() {
+  const newIndex = this.currentPageIndex < 3 ? this.currentPageIndex + 1 : undefined;
+  const hint = this.pages[this.currentPageIndex].onSubmit();
+  
+  if (hint) {
+    this.footer.changeHint(hint);
+  } else {
+    this.footer.changeHint(null);
+    if (this.currentPageIndex === 2) {
+      this.selectedData.staff = this.pages[0].state.stuffId;
+      this.selectedData.service = this.pages[1].state.serviceId;
+      this.selectedData.date = this.pages[2].datePicker.state;
+      this.selectedData.TimePicker = this.pages[2].datePicker.timePicker.state.date;
+      array.push(this.selectedData);
       
+      const findedStaff = staff.find(item => item.id == this.selectedData.staff);
+      const findedService = services.find(item => item.id == this.selectedData.service);
+      oneData.push(findedStaff, findedService);
       
-      this.goTo(newIndex);
+      // console.log(oneData);
     }
     
+    this.goTo(newIndex);
   }
+}
+
+  
   renderInnerPage(HTML) {
     document.querySelector(`#inner-page`).innerHTML = HTML;
   }
@@ -598,8 +601,11 @@ class Pagination {
       this.onPageChange(index);
     }else {
       const mergedObject = { ...array[0], ...array[1] };
-      console.log(mergedObject);
+      this.renderInnerPage(this.pages[0].HTML);
+      this.pages[0].afterRender();
+      this.onPageChange(0);
       alert("Succes")
+      console.log("Data",mergedObject);
     }
   }
 }
